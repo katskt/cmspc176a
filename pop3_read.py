@@ -41,13 +41,20 @@ s.send(f'LIST\r\n'.encode())
 # capture the full response — depending on the network, the entire response
 # may arrive in a single recv() or be split across several. Accumulate data
 # until you have seen the terminator.
+# 1. get list of messages: ex. 
+# 1 23
+# 2 45
+# 3 92
+# .
 buffer = ""
 while True:
     response = s.recv(BUFFER_SIZE).decode('utf-8')
     buffer += response
+    # stop reading when reach end
     if "\r\n.\r\n" in buffer:
         break
 
+# splt the response into a list
 inbox_num = buffer.split("\r\n")
 # Retrieve and print each message with the RETR command.
 # The same caveat about multi-line responses applies here.
@@ -60,18 +67,18 @@ for i in inbox_num:
         continue    
     if "X-" in i:
         continue
-    i = i.split(" ")[0]
+    i = i.split(" ")[0] # obtain the RETR numbers from list and RETR it. 
     s.send(f'RETR {i}\r\n'.encode())
     count = 0
     ak47 = ""
-    while True:
+    while True: # get response
         response = s.recv(BUFFER_SIZE).decode('utf-8')
         ak47 += response
         poop += response
         if "\r\n.\r\n" in ak47:
             break
             
-
+# display response pretty
 poop = poop.split("\n")
 for i in (poop):
     if "+OK" in i:
