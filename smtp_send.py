@@ -61,12 +61,15 @@ send_and_recv(f'DATA\r\n', '354')
 # Send message headers and body.
 s.send(f'Subject: {subject}\r\n'.encode())
 s.send("\r\n".encode())
-s.send(body.encode())
+i = body.splitlines()
+for line in i:
+    s.send(f"{line}\r\n".encode())
 
 # End message with a line containing only a period.
 s.send(f'\r\n.\r\n'.encode())
 
 resp = s.recv(BUFFER_SIZE).decode()
+
 if not resp.startswith("250"):
     raise Exception("Message Error")
 # Send QUIT command.
